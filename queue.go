@@ -27,7 +27,7 @@ type queue struct {
 	items         []Patient
 	mode          int
 	hashmap       map[string]bool
-	currentGender *gender
+	currentGender *Gender
 }
 
 func (q *queue) ChangeMode(mode int) {

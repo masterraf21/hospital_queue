@@ -1,15 +1,30 @@
 package main
 
-type gender int
+type Gender int
 
 const (
-	Male   gender = 0
-	Female gender = 1
+	Male   Gender = 0
+	Female Gender = 1
 )
 
 type Patient struct {
 	Number string
-	Gender gender
+	Gender Gender
+}
+
+func NewPatient(number string, gender string) Patient {
+	var g Gender
+	switch gender {
+	case "M":
+		g = Male
+	case "F":
+		g = Female
+	}
+
+	return Patient{
+		Number: number,
+		Gender: g,
+	}
 }
 
 func (p *Patient) GetGender() string {

@@ -60,24 +60,15 @@ func (c *cli) Run() {
 				fmt.Println("Input format incorrect, try again")
 				continue
 			}
+
 			number := trimmedInput[1]
-			genderRaw := trimmedInput[2]
-			if genderRaw != "F" && genderRaw != "M" {
+			gender := trimmedInput[2]
+			if gender != "F" && gender != "M" {
 				fmt.Println("Gender format incorrect, try again")
 				continue
 			}
-			var gender gender
-			switch genderRaw {
-			case "M":
-				gender = Male
-			case "F":
-				gender = Female
-			}
 
-			err := c.queue.Enqueue(Patient{
-				Number: number,
-				Gender: gender,
-			})
+			err := c.queue.Enqueue(NewPatient(number, gender))
 			if err != nil {
 				fmt.Println(err.Error())
 				continue
