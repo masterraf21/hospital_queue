@@ -1,4 +1,4 @@
-package hospital_queue
+package main
 
 type gender int
 
@@ -12,10 +12,14 @@ type Patient struct {
 	Gender gender
 }
 
-func (p *Patient) GetNumber() string {
-	return p.Number
-}
+func (p *Patient) GetGender() string {
+	var res string
+	switch p.Gender {
+	case Male:
+		res = "M"
+	case Female:
+		res = "F"
+	}
 
-func (p *Patient) GetGender() gender {
-	return p.Gender
+	return res
 }

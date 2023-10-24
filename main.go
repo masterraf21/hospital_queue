@@ -1,3 +1,6 @@
-package hospital_queue
+package main
 
-func main()
+func main() {
+	runInterface := NewCLI(NewPatientQueue())
+	runInterface.Run()
+}

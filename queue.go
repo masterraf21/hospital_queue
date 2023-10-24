@@ -1,4 +1,4 @@
-package hospital_queue
+package main
 
 import "errors"
 
@@ -13,10 +13,14 @@ type Queue interface {
 	Dequeue() (Patient, error)
 	ChangeMode(int)
 	Len() int
+	GetMode() string
 }
 
 func NewPatientQueue() Queue {
-	return &queue{}
+	return &queue{
+		items:   make([]Patient, 0),
+		hashmap: make(map[string]bool),
+	}
 }
 
 type queue struct {
@@ -30,6 +34,19 @@ func (q *queue) ChangeMode(mode int) {
 	q.mode = mode
 }
 
+func (q *queue) GetMode() string {
+	if q.mode == Default {
+		return "Default Mode"
+	}
+
+	if q.mode == RoundRobin {
+		return "Round Robin Mode"
+	}
+
+	return "Mode not implemented"
+
+}
+
 func (q *queue) Len() int {
 	return len(q.items)
 }
@@ -40,7 +57,7 @@ func (q *queue) IsEmpty() bool {
 
 func (q *queue) Enqueue(item Patient) error {
 	if q.hashmap[item.Number] {
-		return errors.New("item already in queue")
+		return errors.New("Item already in queue")
 	}
 	q.items = append(q.items, item)
 	q.hashmap[item.Number] = true
@@ -56,7 +73,7 @@ func (q *queue) Dequeue() (item Patient, err error) {
 	case RoundRobin:
 		item, err = q.dequeueRoundRobin()
 	default:
-		err = errors.New("mode not implemented")
+		err = errors.New("Mode not implemented")
 	}
 
 	return
@@ -65,7 +82,7 @@ func (q *queue) Dequeue() (item Patient, err error) {
 func (q *queue) dequeueDefault() (Patient, error) {
 	if len(q.items) == 0 {
 		var zeroValue Patient
-		return zeroValue, errors.New("empty queue")
+		return zeroValue, errors.New("Empty queue")
 	}
 	item := q.items[0]
 	q.items = q.items[1:]
@@ -75,13 +92,13 @@ func (q *queue) dequeueDefault() (Patient, error) {
 
 func (q *queue) dequeueRoundRobin() (item Patient, err error) {
 	if len(q.items) == 0 {
-		err = errors.New("empty queue")
+		err = errors.New("Empty queue")
 		return
 	}
 
 	currentItem := q.items[0]
 
-	if q.currentGender == nil || q.currentGender != &currentItem.Gender {
+	if q.currentGender == nil || *q.currentGender != currentItem.Gender {
 		item = currentItem
 		q.currentGender = &currentItem.Gender
 		q.items = q.items[1:]
