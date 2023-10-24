@@ -32,6 +32,9 @@ type queue struct {
 
 func (q *queue) ChangeMode(mode int) {
 	q.mode = mode
+	if mode == Default {
+		q.currentGender = nil
+	}
 }
 
 func (q *queue) GetMode() string {
@@ -91,12 +94,14 @@ func (q *queue) dequeueDefault() (Patient, error) {
 }
 
 func (q *queue) dequeueRoundRobin() (item Patient, err error) {
+	idx := 0
+
 	if len(q.items) == 0 {
 		err = errors.New("Empty queue")
 		return
 	}
 
-	currentItem := q.items[0]
+	currentItem := q.items[idx]
 
 	if q.currentGender == nil || *q.currentGender != currentItem.Gender {
 		item = currentItem
@@ -106,18 +111,17 @@ func (q *queue) dequeueRoundRobin() (item Patient, err error) {
 		return
 	}
 
-	idx := 1
+	idx++
 	found := false
-	for !found || idx < len(q.items) {
-		tempItem := q.items[idx]
-		if q.currentGender != &tempItem.Gender {
+	for !found && idx < len(q.items) {
+		currentItem = q.items[idx]
+		if *q.currentGender != currentItem.Gender {
 			found = true
-			item = tempItem
-			q.currentGender = &tempItem.Gender
+			item = currentItem
+			q.currentGender = &currentItem.Gender
 			q.items = remove(q.items, idx)
-			delete(q.hashmap, tempItem.Number)
+			delete(q.hashmap, currentItem.Number)
 			return
-
 		}
 
 		idx++
