@@ -1,7 +1,5 @@
 package main
 
-import "errors"
-
 // Enum for queue dispatch mode
 const (
 	Default    int = 0
@@ -46,7 +44,7 @@ func (q *queue) GetMode() string {
 		return "Round Robin Mode"
 	}
 
-	return "Mode not implemented"
+	return "Mode not available"
 
 }
 
@@ -60,7 +58,7 @@ func (q *queue) IsEmpty() bool {
 
 func (q *queue) Enqueue(item Patient) error {
 	if q.hashmap[item.Number] {
-		return errors.New("Item already in queue")
+		return ErrItemInQueue
 	}
 	q.items = append(q.items, item)
 	q.hashmap[item.Number] = true
@@ -76,18 +74,18 @@ func (q *queue) Dequeue() (item Patient, err error) {
 	case RoundRobin:
 		item, err = q.dequeueRoundRobin()
 	default:
-		err = errors.New("Mode not implemented")
+		err = ErrModeNotImplemented
 	}
 
 	return
 }
 
-func (q *queue) dequeueDefault() (Patient, error) {
+func (q *queue) dequeueDefault() (item Patient, err error) {
 	if len(q.items) == 0 {
-		var zeroValue Patient
-		return zeroValue, errors.New("Empty queue")
+		err = ErrEmptyQueue
+		return
 	}
-	item := q.items[0]
+	item = q.items[0]
 	q.items = q.items[1:]
 	delete(q.hashmap, item.Number)
 	return item, nil
@@ -97,7 +95,7 @@ func (q *queue) dequeueRoundRobin() (item Patient, err error) {
 	idx := 0
 
 	if len(q.items) == 0 {
-		err = errors.New("Empty queue")
+		err = ErrEmptyQueue
 		return
 	}
 
@@ -127,7 +125,7 @@ func (q *queue) dequeueRoundRobin() (item Patient, err error) {
 		idx++
 	}
 
-	return item, errors.New("Round Robin failed getting alternate gender")
+	return item, ErrRoundRobinFailed
 }
 
 func remove[T any](slice []T, s int) []T {
